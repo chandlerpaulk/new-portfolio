@@ -50,7 +50,7 @@ const server = http.createServer((req, res) => {
             const mailOptions = {
                 from: data.from + '<chandlerpaulk59@gmail.com>',
                 to: 'chandlerpaulk59@gmail.com',
-                subject: data.subject,
+                subject: data.subject + ' - Portfolio Contact',
                 text: data.message
             };
             // Send the email
