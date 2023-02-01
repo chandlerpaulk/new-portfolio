@@ -1,15 +1,16 @@
-const http = require("http");
+const http = require('http');
 const path = require('path')
-const fs = require("fs");
-const querystring = require("querystring");
-const nodemailer = require("nodemailer");
+const fs = require('fs');
+const querystring = require('querystring');
+const nodemailer = require('nodemailer');
+const compression = require('compression')
 
 const PORT = process.env.PORT || 5000
 
 let requestCount = 0;
 
 // create a server object
-const server = http.createServer((req, res) => {
+const server = http.createServer(compression(), (req, res) => {
     requestCount++;
     // Serve the homepage to the client
     if (req.url === '/') {
