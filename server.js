@@ -1,16 +1,12 @@
 const http = require("http");
 const path = require('path')
 const fs = require("fs");
-const url = require("url");
 const querystring = require("querystring");
 const nodemailer = require("nodemailer");
 
 const PORT = process.env.PORT || 5000
 
 let requestCount = 0;
-
-// Email validation
-const validateEmail = (email) =>  /^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/.test(email);
 
 // create a server object
 const server = http.createServer((req, res) => {
@@ -19,7 +15,7 @@ const server = http.createServer((req, res) => {
     if (req.url === '/') {
         fs.readFile(path.join(__dirname, 'views', 'index.html'), (err, data) => {
             if (err) throw err;
-            res.writeHead(200, { 'Content-Type': 'text/html; charset=UTF-8' });
+            res.writeHead(200, { 'Content-Type': 'text/html; charset=UTF-8', 'Cache-Control': 'public, max-age=31536000' });
             res.end(data);
         });
     } else if (req.url.startsWith('/public/')) {
@@ -27,9 +23,10 @@ const server = http.createServer((req, res) => {
             if (err) throw err;
             const ext = path.extname(req.url);
             let contentType = 'text/html';
+            let cacheControl = 'public, max-age=315360000'
             if (ext === '.css') contentType = 'text/css';
-            if (ext === '.js') contentType = 'application/javascript';
-            res.writeHead(200, { 'Content-Type': contentType });
+            if (ext === '.js') { contentType = 'application/javascript'; cacheControl = 'public, max-age=86400'; }
+            res.writeHead(200, { 'Content-Type': contentType, 'Cache-Control': cacheControl });
             res.end(data);
         });
     } else if (req.url === '/send-email' && req.method === 'POST') {
@@ -57,9 +54,11 @@ const server = http.createServer((req, res) => {
             transporter.sendMail(mailOptions, (err, info) => {
                 if (err) {
                     console.log(err);
+                    res.writeHead(500, { 'Content-Type': 'text/html' })
                     res.end('An error occurred while trying to send the email.');
                 } else {
                     console.log(`Email sent: ${info.response}`);
+                    res.writeHead(200, { 'Content-Type': 'text/html', 'Cache-Control': 'no-store' })
                     res.end('Email sent successfully!');
                 }
             });
